@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>我的全栈计算器</title>
+    <style>
+        /* 这里是 CSS 样式，负责网页的美观 */
+        body {
+            font-family: '微软雅黑', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            padding-top: 50px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 350px;
+            text-align: center;
+        }
+        h1 { color: #333; font-size: 24px; }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background-color: #218838; }
+        .result-box {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .history-box {
+            margin-top: 30px;
+            text-align: left;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .history-box h3 { font-size: 16px; color: #666; }
+        ul { padding-left: 20px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🧮 全栈计算器</h1>
+        
+        <input type="number" id="input1" placeholder="输入第一个数字">
+        <input type="number" id="input2" placeholder="输入第二个数字">
+        <br>
+        <button onclick="doCalculate()">计算求和</button>
+
+        <div class="result-box">结果是: <span id="result">?</span></div>
+
+        <div class="history-box">
+            <h3>📜 历史计算记录：</h3>
+            <ul id="history-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        // 这里是 JS 逻辑，保持不变
+        async function doCalculate() {
+            const val1 = parseFloat(document.getElementById('input1').value);
+            const val2 = parseFloat(document.getElementById('input2').value);
+
+            const response = await fetch('http://127.0.0.1:5000/api/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ num1: val1, num2: val2 }),
+            });
+            const data = await response.json();
+            document.getElementById('result').innerText = data.result;
+            loadHistory();
+        }
+
+        async function loadHistory() {
+            const response = await fetch('http://127.0.0.1:5000/api/history');
+            const history = await response.json();
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.innerText = `${item.num1} + ${item.num2} = ${item.result}`;
+                list.appendChild(li);
+            });
+        }
+        loadHistory();
+    </script>
+</body>
+</html>
