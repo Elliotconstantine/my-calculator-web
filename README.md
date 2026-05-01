@@ -1,37 +1,28 @@
-# 🧮 我的全栈计算器 (My Full-Stack Calculator)
+# ☁️ 全栈云计算器 (Full-Stack Cloud Calculator)
 
-一个基于 Python Flask 和原生前端技术栈打造的简易全栈计算器。支持加法运算，并能自动将计算历史记录持久化保存到本地数据库中<websource>source_group_web_2</websource>。
+这是一个基于 **Flask** 后端和 **原生 HTML/JS** 前端的全栈计算器应用。它部署在 **PythonAnywhere** 上，支持基本的四则运算，并能将计算历史持久化存储在服务器的 JSON 文件中。
 
-## ✨ 项目亮点
+## ✨ 功能特点
 
-*   **前后端分离**：前端使用原生 HTML/CSS/JS，后端使用 Python Flask 提供 RESTful API。
-*   **数据持久化**：集成 SQLite 数据库，自动保存每一次的计算记录，重启服务数据不丢失。
-*   **模块化设计**：后端采用模块化架构，将数据库操作（db.py）与接口逻辑（app.py）解耦，代码清晰易维护。
-*   **解决跨域问题**：内置 Flask-CORS 配置，完美支持前后端跨域数据交互<websource>source_group_web_3</websource>。
+- **基本运算**：支持加（+）、减（-）、乘（*）、除（/）四则运算。
+- **历史记录**：自动保存每一次的计算记录，包含时间戳和计算详情。
+- **数据持久化**：使用 `history.json` 本地存储，即使重启服务器，历史记录也不会丢失。
+- **前后端分离**：前端通过 `fetch` API 与后端进行异步数据交互。
+- **跨域支持**：集成了 `Flask-CORS`，完美支持跨域请求。
 
 ## 🛠️ 技术栈
 
-*   **后端**：Python 3, Flask, Flask-CORS, SQLite
-*   **前端**：HTML5, CSS3, JavaScript (Fetch API)
-*   **工具**：Git, GitHub
+- **前端**：HTML5, CSS3, JavaScript (ES6+)
+- **后端**：Python 3, Flask
+- **数据存储**：JSON 文件
+- **部署平台**：PythonAnywhere (后端), GitHub Pages (前端)
 
-## 🚀 快速开始
+## 📂 项目结构
 
-### 1. 环境准备
-确保你的电脑上已经安装了 Python 3 环境。
-
-### 2. 克隆与安装依赖
-```bash
-# 克隆项目到本地
-git clone https://github.com/Elliotconstantine/my-calculator-web.git
-cd my-calculator-web
-
-# 安装 Python 依赖
-pip install flask flask-cors
-
-# 运行后端服务
-在终端执行以下命令启动 Flask 后端：
-python app.py
-
-# 启动前端页面
-直接在浏览器中打开项目根目录下的 index.html 文件，或者使用 VS Code 的 Live Server 插件打开，即可看到计算器界面。
+```text
+.
+├── app.py              # Flask 后端主程序（路由与逻辑）
+├── db.py               # 数据库模块（负责历史记录的读写）
+├── history.json        # 持久化存储的历史记录文件
+├── index.html          # 前端页面（包含样式与交互逻辑）
+└── README.md           # 项目说明文档

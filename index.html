@@ -2,104 +2,126 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我的全栈计算器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云计算器</title>
     <style>
-        /* 这里是 CSS 样式，负责网页的美观 */
-        body {
-            font-family: '微软雅黑', sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            padding-top: 50px;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            width: 350px;
-            text-align: center;
-        }
-        h1 { color: #333; font-size: 24px; }
-        input {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover { background-color: #218838; }
-        .result-box {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #007bff;
-        }
-        .history-box {
-            margin-top: 30px;
-            text-align: left;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-        }
-        .history-box h3 { font-size: 16px; color: #666; }
-        ul { padding-left: 20px; color: #555; }
+        body { font-family: sans-serif; max-width: 400px; margin: 2rem auto; padding: 0 1rem; }
+        input, select, button { width: 100%; padding: 0.5rem; margin-top: 0.5rem; }
+        #result { font-size: 1.5rem; color: #333; margin: 1rem 0; text-align: center; }
+        #history-list { list-style: none; padding: 0; }
+        #history-list li { background: #f4f4f4; margin-bottom: 0.5rem; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; }
+        .time { color: #666; font-size: 0.8rem; float: right; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🧮 全栈计算器</h1>
+    <h1>☁️ 云计算器</h1>
+
+    <div>
+        <input type="number" id="num1" placeholder="输入第一个数字">
         
-        <input type="number" id="input1" placeholder="输入第一个数字">
-        <input type="number" id="input2" placeholder="输入第二个数字">
-        <br>
-        <button onclick="doCalculate()">计算求和</button>
+        <select id="operator">
+            <option value="+">+</option>
+            <option value="-">-</option>
+            <option value="*">×</option>
+            <option value="/">÷</option>
+        </select>
 
-        <div class="result-box">结果是: <span id="result">?</span></div>
-
-        <div class="history-box">
-            <h3>📜 历史计算记录：</h3>
-            <ul id="history-list"></ul>
-        </div>
+        <input type="number" id="num2" placeholder="输入第二个数字">
+        
+        <button onclick="doCalculate()">计算</button>
     </div>
 
+    <div id="result">结果将显示在这里</div>
+
+    <h3>历史记录</h3>
+    <ul id="history-list">
+        <!-- 历史记录将插入到这里 -->
+    </ul>
+
     <script>
-        // 这里是 JS 逻辑，保持不变
+        const API_URL = 'https://2399443871.pythonanywhere.com/api';
+
+        // 执行计算
         async function doCalculate() {
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
+            // 1. 获取输入值
+            const val1 = parseFloat(document.getElementById('num1').value);
+            const val2 = parseFloat(document.getElementById('num2').value);
+            const operator = document.getElementById('operator').value;
 
-            const response = await fetch('http://127.0.0.1:5000/api/calculate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ num1: val1, num2: val2 }),
-            });
-            const data = await response.json();
-            document.getElementById('result').innerText = data.result;
-            loadHistory();
+            if (isNaN(val1) || isNaN(val2)) {
+                alert("请输入有效的数字！");
+                return;
+            }
+
+            try {
+                // 2. 发送 POST 请求到后端
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // 发送 num1, num2 和 operator
+                    body: JSON.stringify({ 
+                        num1: val1, 
+                        num2: val2, 
+                        operator: operator 
+                    })
+                });
+
+                const data = await response.json();
+
+                // 3. 显示结果
+                if (data.error) {
+                    document.getElementById('result').innerText = "错误: " + data.error;
+                } else {
+                    document.getElementById('result').innerText = "结果: " + data.result;
+                }
+
+                // 4. 重新加载历史记录
+                loadHistory();
+
+            } catch (error) {
+                console.error("请求失败:", error);
+                document.getElementById('result').innerText = "连接服务器失败";
+            }
         }
 
+        // 加载历史记录
         async function loadHistory() {
-            const response = await fetch('http://127.0.0.1:5000/api/history');
-            const history = await response.json();
-            const list = document.getElementById('history-list');
-            list.innerHTML = '';
-            history.forEach(item => {
-                const li = document.createElement('li');
-                li.innerText = `${item.num1} + ${item.num2} = ${item.result}`;
-                list.appendChild(li);
-            });
+            try {
+                // 1. 发送 GET 请求获取历史
+                const response = await fetch(API_URL);
+                const history = await response.json();
+
+                const list = document.getElementById('history-list');
+                list.innerHTML = ''; // 清空当前列表
+
+                // 2. 遍历返回的数组
+                // 假设后端返回的是 [{time: "...", detail: "..."}, ...]
+                history.forEach(item => {
+                    const li = document.createElement('li');
+                    
+                    // 格式化显示内容
+                    // 如果后端返回的是字符串数组，直接显示 item
+                    // 如果返回的是对象，显示 item.detail 和 item.time
+                    if (typeof item === 'object') {
+                        li.innerHTML = `<span>${item.detail}</span><span class="time">${item.time}</span>`;
+                    } else {
+                        li.innerText = item;
+                    }
+                    
+                    list.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error("加载历史失败:", error);
+            }
         }
-        loadHistory();
+
+        // 页面加载完成后立即获取一次历史记录
+        window.onload = loadHistory;
     </script>
+
 </body>
 </html>
